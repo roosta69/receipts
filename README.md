@@ -69,7 +69,7 @@ review-agency/
 ├── leads/
 │   ├── icp-and-methodology.md — ICP definition + how to scale the list
 │   └── seed-list.csv         — verified starter list of US med spas
-├── website/
+├── docs/                     — also served live via GitHub Pages
 │   ├── copy.md               — homepage copy
 │   └── index.html            — landing page (single file, editorial)
 └── ops/                      — onboarding + monthly report templates (TBD)
