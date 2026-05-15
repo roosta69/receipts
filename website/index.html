@@ -1,0 +1,486 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Receipts — Google reviews for medical spas, paid per result</title>
+<meta name="description" content="$35 per published Google review. No contract. Built for single-owner medical spas. Receipts closes the gap to your top three local competitors.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Cardo:ital,wght@0,400;0,700;1,400&family=Inter:wght@400;500;600&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+:root {
+  --bg: #faf8f3;
+  --text: #161616;
+  --muted: #6b6b6b;
+  --accent: #8b1a1a;
+  --rule: #d4d2cc;
+  --max-w: 720px;
+  --font-serif: "Cardo", Georgia, serif;
+  --font-sans: "Inter", -apple-system, BlinkMacSystemFont, sans-serif;
+  --font-mono: "JetBrains Mono", ui-monospace, "SF Mono", Menlo, monospace;
+}
+
+* { box-sizing: border-box; }
+
+html, body {
+  margin: 0;
+  padding: 0;
+  background: var(--bg);
+  color: var(--text);
+  font-family: var(--font-sans);
+  font-size: 17px;
+  line-height: 1.6;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+.container {
+  max-width: var(--max-w);
+  margin: 0 auto;
+  padding: 0 24px;
+}
+
+/* Top bar */
+.topbar {
+  border-bottom: 1px solid var(--rule);
+  padding: 18px 0;
+}
+.topbar .container {
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+}
+.brand {
+  font-family: var(--font-serif);
+  font-size: 22px;
+  font-weight: 700;
+  letter-spacing: -0.01em;
+}
+.brand-tag {
+  font-family: var(--font-sans);
+  font-size: 13px;
+  color: var(--muted);
+  font-style: italic;
+}
+
+/* Hero */
+.hero {
+  padding: 88px 0 64px;
+  border-bottom: 1px solid var(--rule);
+}
+.hero h1 {
+  font-family: var(--font-serif);
+  font-size: 44px;
+  line-height: 1.15;
+  font-weight: 400;
+  margin: 0 0 28px;
+  letter-spacing: -0.015em;
+}
+.hero h1 .accent {
+  color: var(--accent);
+  font-feature-settings: "lnum" 1, "tnum" 1;
+}
+.hero .sub {
+  font-size: 18px;
+  color: var(--text);
+  max-width: 560px;
+  margin: 0 0 36px;
+  line-height: 1.55;
+}
+.hero .cta {
+  display: inline-block;
+  background: var(--text);
+  color: var(--bg);
+  text-decoration: none;
+  padding: 14px 24px;
+  font-family: var(--font-sans);
+  font-size: 15px;
+  font-weight: 500;
+  border: 1px solid var(--text);
+  transition: background 0.15s;
+}
+.hero .cta:hover { background: var(--accent); border-color: var(--accent); }
+
+/* Sections */
+section {
+  padding: 72px 0;
+  border-bottom: 1px solid var(--rule);
+}
+.eyebrow {
+  font-family: var(--font-sans);
+  font-size: 12px;
+  font-weight: 500;
+  text-transform: uppercase;
+  letter-spacing: 0.12em;
+  color: var(--muted);
+  margin: 0 0 12px;
+}
+.section-h {
+  font-family: var(--font-serif);
+  font-size: 32px;
+  line-height: 1.2;
+  font-weight: 400;
+  margin: 0 0 28px;
+  letter-spacing: -0.01em;
+}
+section p {
+  margin: 0 0 18px;
+  max-width: 620px;
+}
+
+/* Citations inline */
+.cite {
+  font-size: 13px;
+  color: var(--muted);
+  font-style: italic;
+}
+
+/* Sample audit card */
+.audit-card {
+  background: #fff;
+  border: 1px solid var(--rule);
+  padding: 28px 32px;
+  margin: 32px 0 16px;
+}
+.audit-card .label {
+  font-family: var(--font-sans);
+  font-size: 12px;
+  font-style: italic;
+  color: var(--muted);
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  margin: 0 0 18px;
+}
+.audit-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-family: var(--font-mono);
+  font-size: 14px;
+  font-feature-settings: "tnum" 1, "lnum" 1;
+}
+.audit-table th, .audit-table td {
+  text-align: right;
+  padding: 8px 12px;
+  border-bottom: 1px solid var(--rule);
+}
+.audit-table th:first-child, .audit-table td:first-child {
+  text-align: left;
+  font-family: var(--font-sans);
+  font-weight: 500;
+}
+.audit-table th {
+  font-family: var(--font-sans);
+  font-weight: 500;
+  font-size: 12px;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  color: var(--muted);
+  border-bottom: 1px solid var(--text);
+}
+.audit-table tr.you td {
+  font-weight: 700;
+  color: var(--accent);
+}
+.audit-card .footnote {
+  font-size: 13px;
+  color: var(--muted);
+  font-style: italic;
+  margin: 18px 0 0;
+  line-height: 1.55;
+}
+
+/* Pricing block */
+.pricing-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr 1fr;
+  gap: 0;
+  border: 1px solid var(--rule);
+  background: #fff;
+  margin: 32px 0 16px;
+}
+.pricing-cell {
+  padding: 28px 24px;
+  border-right: 1px solid var(--rule);
+}
+.pricing-cell:last-child { border-right: 0; }
+.pricing-cell .num {
+  font-family: var(--font-mono);
+  font-size: 28px;
+  font-weight: 500;
+  letter-spacing: -0.02em;
+  display: block;
+  margin: 0 0 6px;
+}
+.pricing-cell .lab {
+  font-size: 13px;
+  color: var(--muted);
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+}
+
+/* Numbered list */
+.numbered {
+  list-style: none;
+  padding: 0;
+  margin: 32px 0 0;
+  counter-reset: item;
+}
+.numbered li {
+  counter-increment: item;
+  padding: 24px 0 24px 60px;
+  position: relative;
+  border-top: 1px solid var(--rule);
+  max-width: 620px;
+}
+.numbered li:before {
+  content: counter(item, decimal-leading-zero);
+  position: absolute;
+  left: 0;
+  top: 24px;
+  font-family: var(--font-serif);
+  font-size: 24px;
+  font-style: italic;
+  color: var(--accent);
+}
+.numbered li strong {
+  font-weight: 600;
+  display: block;
+  margin: 0 0 6px;
+}
+
+/* Compliance block */
+.compliance-block {
+  background: #fff;
+  border-left: 3px solid var(--accent);
+  padding: 28px 32px;
+  margin: 28px 0 0;
+  font-size: 16px;
+  line-height: 1.6;
+}
+.compliance-block p:last-child { margin-bottom: 0; }
+
+/* CTA section */
+.cta-section {
+  background: var(--text);
+  color: var(--bg);
+  padding: 96px 0;
+}
+.cta-section .eyebrow { color: rgba(250,248,243,0.55); }
+.cta-section .section-h { color: var(--bg); }
+.cta-section p { color: rgba(250,248,243,0.85); }
+.cta-form {
+  margin-top: 36px;
+  max-width: 520px;
+}
+.cta-form label {
+  display: block;
+  font-size: 12px;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  color: rgba(250,248,243,0.55);
+  margin: 0 0 6px;
+}
+.cta-form input {
+  width: 100%;
+  padding: 12px 0;
+  background: transparent;
+  border: 0;
+  border-bottom: 1px solid rgba(250,248,243,0.3);
+  color: var(--bg);
+  font-family: var(--font-sans);
+  font-size: 16px;
+  margin: 0 0 24px;
+}
+.cta-form input:focus {
+  outline: none;
+  border-bottom-color: var(--bg);
+}
+.cta-form button {
+  background: var(--bg);
+  color: var(--text);
+  border: 0;
+  padding: 14px 24px;
+  font-family: var(--font-sans);
+  font-size: 15px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: background 0.15s;
+}
+.cta-form button:hover { background: #fff; }
+
+/* Footer */
+footer {
+  padding: 32px 0;
+  font-size: 13px;
+  color: var(--muted);
+  line-height: 1.7;
+}
+footer p { margin: 0 0 4px; max-width: none; }
+
+/* Mobile */
+@media (max-width: 640px) {
+  .hero h1 { font-size: 32px; }
+  .section-h { font-size: 24px; }
+  .pricing-grid { grid-template-columns: 1fr; }
+  .pricing-cell { border-right: 0; border-bottom: 1px solid var(--rule); }
+  .pricing-cell:last-child { border-bottom: 0; }
+  .numbered li { padding-left: 50px; }
+  .numbered li:before { font-size: 20px; }
+  .audit-card { padding: 20px 18px; }
+  .audit-table { font-size: 12px; }
+  .audit-table th, .audit-table td { padding: 6px 6px; }
+}
+</style>
+</head>
+<body>
+
+<header class="topbar">
+  <div class="container">
+    <div class="brand">Receipts</div>
+    <div class="brand-tag">Google reviews for medical spas, paid per result.</div>
+  </div>
+</header>
+
+<section class="hero">
+  <div class="container">
+    <h1>Your top three local competitors have <span class="accent">67</span> Google reviews. You have <span class="accent">22</span>.</h1>
+    <p class="sub">Receipts closes the gap for medical spas. We send sentiment-neutral review requests through your CRM, reply to every review on your behalf, and report your competitive position monthly. You pay $35 per published review. No contract.</p>
+    <a href="#audit" class="cta">Get your gap audit — free</a>
+  </div>
+</section>
+
+<section>
+  <div class="container">
+    <p class="eyebrow">Where you actually stand</p>
+    <h2 class="section-h">Reviews are the second-largest factor in Google's local pack ranking.</h2>
+    <p>20% of the algorithm. <span class="cite">(BrightLocal, Local Search Ranking Factors, 2026.)</span></p>
+    <p>Top-3-ranked local businesses average 47 Google reviews. The bottom three average 38. The math is uncomplicated: your competitors' review counts decide where you appear in "med spa near me" searches.</p>
+    <p>47% of consumers won't use a business with fewer than 20 reviews. 31% require 4.5+ stars. 74% only care about reviews from the past three months. <span class="cite">(BrightLocal Local Consumer Review Survey, 2026.)</span></p>
+    <p>Most med spas we audit are 30 to 80 reviews behind their nearest three competitors. That gap costs them ranking, ranking costs them clicks, clicks cost them bookings.</p>
+
+    <div class="audit-card">
+      <p class="label">Sample audit — Phoenix, AZ</p>
+      <table class="audit-table">
+        <thead>
+          <tr>
+            <th>Spa</th>
+            <th>Reviews</th>
+            <th>Stars</th>
+            <th>Last 30d</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr><td>Top competitor</td><td>84</td><td>4.8</td><td>+9</td></tr>
+          <tr><td>Second</td><td>71</td><td>4.7</td><td>+6</td></tr>
+          <tr><td>Third</td><td>52</td><td>4.9</td><td>+4</td></tr>
+          <tr class="you"><td>You</td><td>22</td><td>4.6</td><td>+1</td></tr>
+        </tbody>
+      </table>
+      <p class="footnote">Gap to top-3 average (69): –47 reviews. At local-pack-#1 click rate of 17.6% vs your current #4-5 rank, that's roughly 38 fewer monthly inquiries.</p>
+    </div>
+  </div>
+</section>
+
+<section>
+  <div class="container">
+    <p class="eyebrow">Pricing</p>
+    <h2 class="section-h">$35 per review. That's it.</h2>
+    <p>$499 one-time setup. $35 per published verified review thereafter. Capped at $899 per month. Month-to-month, cancel anytime.</p>
+
+    <div class="pricing-grid">
+      <div class="pricing-cell">
+        <span class="num">$499</span>
+        <span class="lab">One-time setup</span>
+      </div>
+      <div class="pricing-cell">
+        <span class="num">$35</span>
+        <span class="lab">Per published review</span>
+      </div>
+      <div class="pricing-cell">
+        <span class="num">$899</span>
+        <span class="lab">Monthly cap</span>
+      </div>
+    </div>
+
+    <p>If we don't deliver reviews, you don't pay. The setup fee covers your competitor audit, CRM integration, and the BAA we sign before touching any patient data.</p>
+    <p>No annual contract. No 8% renewal fees. No "$13,000 over 24 months and we won't let you cancel" — which is what real Birdeye and Podium customers wrote on the BBB.</p>
+  </div>
+</section>
+
+<section>
+  <div class="container">
+    <p class="eyebrow">What we do</p>
+    <h2 class="section-h">Three things.</h2>
+    <ol class="numbered">
+      <li><strong>We pull your competitive position.</strong>Top 5 nearest med spas. Review counts, ratings, recency, reply rate. Refreshed monthly.</li>
+      <li><strong>We send review requests to every patient post-visit.</strong>Sentiment-neutral language. Sent through your existing CRM under a signed BAA. We do not gate, filter, or steer review sentiment — that's a Federal Trade Commission violation.</li>
+      <li><strong>We reply to every review on your behalf.</strong>HIPAA-safe templates that never disclose patient or procedure information. 1-3 star reviews get human review before any reply is published.</li>
+    </ol>
+  </div>
+</section>
+
+<section>
+  <div class="container">
+    <p class="eyebrow">What we don't do — yet</p>
+    <h2 class="section-h">No social media. No 12-page dashboards. No $5,000 marketing retainers.</h2>
+    <p>We acquire Google reviews. That's the entire product right now.</p>
+    <p>When customers ask for reply-voice tuning, fake-listing dispute filing, or Instagram aggregation, we'll add them as separate line items. Not before.</p>
+  </div>
+</section>
+
+<section>
+  <div class="container">
+    <p class="eyebrow">Compliance</p>
+    <h2 class="section-h">The legal posture.</h2>
+    <div class="compliance-block">
+      <p>Receipts operates under signed BAAs with every customer. We send sentiment-neutral review requests from your CRM, follow Google Business Profile policies on solicitation, and never incentivize reviewers.</p>
+      <p>Our pricing structure is a service fee per published review — not a payment to reviewers, which is illegal under FTC 16 CFR § 465.4 — and we do not gate, filter, or steer review sentiment. Our reply templates are HIPAA-safe and never disclose patient or procedure information.</p>
+      <p>Most "review services" don't survive a 30-second look at the Federal Register. Ours does.</p>
+    </div>
+  </div>
+</section>
+
+<section>
+  <div class="container">
+    <p class="eyebrow">Worked example</p>
+    <h2 class="section-h">What 90 days looks like.</h2>
+    <p>A single-location NP-owned med spa in Scottsdale. 22 Google reviews to start. 30 patient visits per week. Average $650 ticket. Five-year Botox-patient LTV: $9,000. <span class="cite">(Dean Garland Insights.)</span></p>
+    <p>After 90 days: 38 published reviews. Local-pack ranking moves from #4 to #2. Monthly GBP views (1,260 baseline per BrightLocal) convert at a higher rate; estimated 5 incremental new patients per month.</p>
+    <p>Five new Botox patients per month at $9,000 LTV = <strong>$540,000 in five-year booked revenue</strong>.</p>
+    <p>Cost over those 90 days: $499 setup + ~$1,330 in review fees = $1,829.</p>
+    <p class="cite">The numbers above are a model, not a promise. Your spa's GBP traffic, conversion rate, and patient mix are different. The audit we send before you sign tells you what your actual math looks like.</p>
+  </div>
+</section>
+
+<section class="cta-section" id="audit">
+  <div class="container">
+    <p class="eyebrow">Get the audit</p>
+    <h2 class="section-h">Send us your spa name and zip.</h2>
+    <p>We'll send back a one-page audit within 24 hours: where you sit, where your top three competitors sit, what closing the gap is worth.</p>
+    <p>No call required. No pitch attached.</p>
+
+    <form class="cta-form" action="/api/audit" method="POST">
+      <label for="spa">Spa name</label>
+      <input type="text" id="spa" name="spa" required>
+      <label for="zip">Zip code</label>
+      <input type="text" id="zip" name="zip" pattern="[0-9]{5}" required>
+      <label for="email">Email (where to send the audit)</label>
+      <input type="email" id="email" name="email" required>
+      <label for="phone">Phone (optional — if you'd rather we call)</label>
+      <input type="tel" id="phone" name="phone">
+      <button type="submit">Send me the audit</button>
+    </form>
+  </div>
+</section>
+
+<footer>
+  <div class="container">
+    <p><strong>Receipts</strong> — Google reviews for medical spas, paid per result.</p>
+    <p>Compliance: BAA on file with every customer · FTC 16 CFR § 465 compliant · No incentivized reviews.</p>
+    <p>hello@receipts.[tld] · © 2026 Receipts LLC</p>
+  </div>
+</footer>
+
+</body>
+</html>

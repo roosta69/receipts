@@ -1,0 +1,23 @@
+.DS_Store
+.env
+.env.local
+*.log
+node_modules/
+dist/
+build/
+.vscode/
+.idea/
+
+# secrets / private
+secrets/
+*.pem
+*.key
+credentials.json
+
+# customer data — never commit
+customer-data/
+patient-info/
+*.csv.private
+
+# generated audit PDFs
+audits/*.pdf
