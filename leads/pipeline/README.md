@@ -1,0 +1,137 @@
+# Lead Pipeline
+
+Bulk-scrapes Google Maps via Apify → filters to ICP → assigns 3 competitors per primary → enriches emails → exports two CSVs ready for Google Sheets.
+
+## What you get
+
+Two CSVs in `~/Desktop/review-agency/leads/`:
+
+- **master-list.csv** — one row per ICP-fit med spa. Columns: name, city, state, zip, phone, website, instagram, email, review count, star rating, address, GBP URL, categories, top 3 competitors (inline), plus call-tracking columns (`call_status`, `call_attempts`, `last_attempted`, `notes`).
+- **competitors.csv** — long-format competitor reference. Each row is one competitor of one primary spa, with rank, distance, review count, star rating, GBP URL.
+
+Expected scale: 2,000-3,500 primary records across the configured 38 metros, plus their ~6,000-10,500 competitor records.
+
+## Prerequisites
+
+```bash
+pip install -r requirements.txt
+```
+
+API keys needed:
+
+| Service | Required? | How to get | Cost |
+|---|---|---|---|
+| **Apify** | Yes | https://console.apify.com/account/integrations | Free tier $5/mo covers ~3,300 results |
+| **Hunter.io** | Optional (fallback only) | https://hunter.io/api-keys | Free tier 50 lookups/mo; $49/mo for 500 |
+
+If you skip Hunter, Stage A (contact-page scraping) still hits ~60-70% of spas with emails. Hunter adds ~15-20% on top.
+
+## Run the pipeline
+
+```bash
+cd ~/Desktop/review-agency/leads/pipeline
+
+export APIFY_TOKEN=your_apify_token
+# Optional:
+export HUNTER_API_KEY=your_hunter_key
+
+# Step 1 — Bulk scrape Google Maps (10-30 min, costs ~$3-5)
+python 01_apify_scrape.py
+
+# Step 2 — Dedup + apply ICP filter (instant)
+python 02_filter_icp.py
+
+# Step 3 — Assign 3 nearest competitors to each primary (instant)
+python 03_assign_competitors.py
+
+# Step 4 — Enrich emails (10-30 min depending on dataset size)
+python 04_enrich_emails.py
+
+# Step 5 — Export final CSVs (instant)
+python 05_export_csv.py
+```
+
+After step 5, two CSVs land in `~/Desktop/review-agency/leads/`. Import to Google Sheets via `File > Import > Upload`.
+
+## What each step does
+
+### `01_apify_scrape.py`
+Runs the Apify Google Maps Scraper actor (`compass/crawler-google-places`) with one search per `(city, query template)` combination from `config.py`. Default config: 38 cities × 3 queries × 30 results = 3,420 raw results.
+
+Output: `data/01_raw_apify.json`
+
+### `02_filter_icp.py`
+- Dedups by GBP URL (same place returned by multiple queries)
+- Drops anything matching `CHAIN_BLOCKLIST`
+- Drops categories in `DROP_CATEGORIES` (hair salons, nail salons, etc.)
+- Requires at least one category in `KEEP_CATEGORIES`
+- Enforces `MIN_REVIEW_COUNT` (default 60) and `MIN_STAR_RATING` (default 4.0)
+- Splits into `primary_targets` (ICP-match) and `competitor_pool` (everything else, including chains)
+
+Output: `data/02_filtered_icp.json`
+
+### `03_assign_competitors.py`
+For each primary target, computes haversine distance to every other place in `competitor_pool`. Selects the 3 nearest within 10 miles, breaking ties by review count. The chain spas come back in as "real competitors" since patients compare against them.
+
+Output: `data/03_with_competitors.json`
+
+### `04_enrich_emails.py`
+**Stage A** (free): Scrapes each spa's website + common contact-page paths (`/contact`, `/contact-us`, `/about`) for `mailto:` links and emails matching the spa's domain. ~60-70% hit rate.
+
+**Stage B** (optional, requires `HUNTER_API_KEY`): For spas where Stage A failed, queries Hunter.io for the spa's domain and picks the highest-priority email (owner > founder > info@ > generic).
+
+Output: `data/04_with_emails.json`
+
+### `05_export_csv.py`
+Writes the two final CSVs. Schema documented at top of the script.
+
+Output:
+- `~/Desktop/review-agency/leads/master-list.csv`
+- `~/Desktop/review-agency/leads/competitors.csv`
+
+## Configuration
+
+All knobs live in `config.py`:
+
+- `TARGET_METROS` — which cities to scrape. Add/remove as you expand.
+- `SEARCH_QUERIES_PER_METRO` — search string templates. Default: 3 per metro.
+- `MAX_RESULTS_PER_QUERY` — controls cost. 30 × 3 × 38 = 3,420 results × $0.0015 = ~$5.
+- `MIN_REVIEW_COUNT` — ICP review floor (proxy for $1M+ revenue). Default 60.
+- `CHAIN_BLOCKLIST` — names that get excluded from primaries. Add new chains here.
+- `COMPETITOR_RADIUS_MILES` — how far to look for competitors. Default 10.
+
+## Cost summary (default config)
+
+| Item | Cost |
+|---|---|
+| Apify scrape (~3,420 results) | $3.50-5.00 |
+| Hunter.io (optional) | $0 free / $49/mo |
+| Time (start-to-finish) | ~30-60 minutes |
+
+## Re-running for new cities
+
+To add new cities later:
+1. Add to `TARGET_METROS` in `config.py`
+2. Run `01_apify_scrape.py` again (it will pull new + already-seen data; that's fine)
+3. Run the rest of the pipeline; dedup is handled
+
+## What this does NOT do
+
+- **Verify "single-owner" status** — Apify can't see ownership structure. Run a VA pass on the top 100 hottest leads (Phase 2 work).
+- **Verify "operating 2+ years"** — proxy via review count works ~85% of the time.
+- **Pull owner credentials** (RN/NP/MD) — these come from About-page scraping. Punt to a separate enrichment pass once you've validated the master list.
+- **Distinguish single-location independent vs. small chain (2-3 locations)** — partial chain detection via name matching; not perfect.
+
+These are all "Phase 2" enrichment tasks — do them on the 100-200 hottest leads, not on the entire list.
+
+## Troubleshooting
+
+**"Module not found: apify_client"** → Run `pip install -r requirements.txt`
+
+**"APIFY_TOKEN environment variable not set"** → `export APIFY_TOKEN=apify_api_xxxxx` (find in console.apify.com)
+
+**Apify run shows 0 results** → Check the actor at https://apify.com/compass/crawler-google-places — they may have renamed it. Update `APIFY_ACTOR_ID` in config.py.
+
+**Step 04 is very slow** → Each spa website fetch takes ~3 seconds × 2,000 spas = ~2 hours. Run overnight or in chunks. To skip emails entirely, comment out Stage A and just run Stage B with Hunter.
+
+**Want to scrape Google Maps without Apify?** Alternatives: Outscraper ($0.0008/record), SerpAPI, or Google Places API directly ($17 per 1K searches + $32 per 1K details).
