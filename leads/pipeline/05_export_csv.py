@@ -19,11 +19,12 @@ Run:
 
 import csv
 import json
+import os
 import re
 import sys
 from typing import Dict, Optional
 
-from config import WITH_EMAILS_JSON, MASTER_CSV, COMPETITORS_CSV
+from config import WITH_EMAILS_JSON, WITH_COMPETITORS_JSON, MASTER_CSV, COMPETITORS_CSV
 
 
 def extract_instagram(place: Dict) -> Optional[str]:
@@ -160,7 +161,19 @@ def write_competitors_csv(primaries):
 
 
 def main():
-    with open(WITH_EMAILS_JSON) as f:
+    # Prefer email-enriched output (step 04), but fall back gracefully
+    # to step 03 output if email enrichment was skipped.
+    if os.path.exists(WITH_EMAILS_JSON):
+        source = WITH_EMAILS_JSON
+        print(f"Reading {WITH_EMAILS_JSON} (with emails)", file=sys.stderr)
+    elif os.path.exists(WITH_COMPETITORS_JSON):
+        source = WITH_COMPETITORS_JSON
+        print(f"Reading {WITH_COMPETITORS_JSON} (email column will be blank)", file=sys.stderr)
+    else:
+        print(f"ERROR: No input found. Run 03_assign_competitors.py first.", file=sys.stderr)
+        sys.exit(1)
+
+    with open(source) as f:
         primaries = json.load(f)
 
     write_master_csv(primaries)

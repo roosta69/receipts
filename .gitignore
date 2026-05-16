@@ -16,10 +16,13 @@ credentials.json
 google-service-account.json
 *-service-account.json
 
-# pipeline working files (regenerated each run)
+# pipeline working files (regenerated each run; large + intermediate)
 leads/pipeline/data/
-leads/master-list.csv
-leads/competitors.csv
+
+# NOTE: master-list.csv and competitors.csv ARE committed.
+# They contain only public Google Business Profile data (name, phone,
+# website, review count, address). No PHI, no patient data. Public commit
+# enables IMPORTDATA into Google Sheets without a service account.
 
 # customer data — never commit
 customer-data/
@@ -28,3 +31,4 @@ patient-info/
 
 # generated audit PDFs
 audits/*.pdf
+__pycache__/
