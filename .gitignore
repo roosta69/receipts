@@ -13,6 +13,13 @@ secrets/
 *.pem
 *.key
 credentials.json
+google-service-account.json
+*-service-account.json
+
+# pipeline working files (regenerated each run)
+leads/pipeline/data/
+leads/master-list.csv
+leads/competitors.csv
 
 # customer data — never commit
 customer-data/

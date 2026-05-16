@@ -17,14 +17,17 @@ Expected scale: 2,000-3,500 primary records across the configured 38 metros, plu
 pip install -r requirements.txt
 ```
 
-API keys needed:
+API keys / credentials needed:
 
 | Service | Required? | How to get | Cost |
 |---|---|---|---|
 | **Apify** | Yes | https://console.apify.com/account/integrations | Free tier $5/mo covers ~3,300 results |
 | **Hunter.io** | Optional (fallback only) | https://hunter.io/api-keys | Free tier 50 lookups/mo; $49/mo for 500 |
+| **Google service account** | Optional (only if writing direct to Sheets) | See Google Sheets setup section below | Free |
 
 If you skip Hunter, Stage A (contact-page scraping) still hits ~60-70% of spas with emails. Hunter adds ~15-20% on top.
+
+If you skip the Google service account, you'll get two CSVs you can import to Google Sheets manually (File > Import > Upload) in 30 seconds. The Sheets integration is for re-runs where you don't want to lose the call-tracking columns you've been editing.
 
 ## Run the pipeline
 
@@ -49,9 +52,15 @@ python 04_enrich_emails.py
 
 # Step 5 — Export final CSVs (instant)
 python 05_export_csv.py
+
+# Step 6 — (optional) Write direct to Google Sheets, preserves your call-tracking edits
+export GOOGLE_SHEET_ID=your_sheet_id_here
+python 06_write_to_sheets.py
 ```
 
 After step 5, two CSVs land in `~/Desktop/review-agency/leads/`. Import to Google Sheets via `File > Import > Upload`.
+
+After step 6 (if configured), data goes directly into the Google Sheet you specified, with two tabs: "Primary Targets" and "Competitors". On re-runs, any tracking columns you've edited (`call_status`, `call_attempts`, `last_attempted`, `notes`) are preserved per spa by matching on GBP URL.
 
 ## What each step does
 
@@ -88,6 +97,39 @@ Writes the two final CSVs. Schema documented at top of the script.
 Output:
 - `~/Desktop/review-agency/leads/master-list.csv`
 - `~/Desktop/review-agency/leads/competitors.csv`
+
+### `06_write_to_sheets.py` (optional)
+Alternative to step 5. Writes the same data directly to a Google Sheet you control. On re-runs, preserves tracking columns (`call_status`, `call_attempts`, `last_attempted`, `notes`) per spa by matching on GBP URL — so you can re-pull updated review counts without losing your outreach history.
+
+Output: data lands in the Google Sheet specified by `GOOGLE_SHEET_ID`. Two tabs: "Primary Targets" + "Competitors".
+
+## Google Sheets setup (one-time, ~10 min)
+
+Required only if you use `06_write_to_sheets.py`. Skip if you're fine with CSVs.
+
+1. **Create a Google Cloud project** at https://console.cloud.google.com — name it whatever (e.g. "receipts-leads")
+2. **Enable two APIs** in your project:
+   - Google Sheets API: https://console.cloud.google.com/apis/library/sheets.googleapis.com
+   - Google Drive API: https://console.cloud.google.com/apis/library/drive.googleapis.com
+3. **Create a service account**: IAM & Admin > Service Accounts > Create Service Account
+   - Give it a name like "receipts-pipeline"
+   - Skip the "Grant access" step — service accounts don't need IAM roles for Sheets API
+4. **Generate a JSON key**: click your new service account > Keys tab > Add Key > Create New Key > JSON > Create
+   - A JSON file downloads. Save it as `~/Desktop/review-agency/leads/pipeline/secrets/google-service-account.json`
+   - **The `secrets/` folder is already in .gitignore** — this never gets committed.
+5. **Create your Google Sheet** — new blank sheet, name it "Receipts Leads"
+6. **Copy the Sheet ID** from the URL:
+   `https://docs.google.com/spreadsheets/d/<THIS_IS_THE_ID>/edit`
+7. **Share the Sheet with the service account**:
+   - Open the JSON file, find the `client_email` field (looks like `receipts-pipeline@project-name.iam.gserviceaccount.com`)
+   - In the Google Sheet, click Share, paste that email, give Editor access, uncheck "notify"
+8. **Set env vars and run**:
+   ```bash
+   export GOOGLE_SHEET_ID=<the_id_from_step_6>
+   python 06_write_to_sheets.py
+   ```
+
+If you want to put the JSON somewhere other than `secrets/google-service-account.json`, set `GOOGLE_CREDS_PATH` env var.
 
 ## Configuration
 
