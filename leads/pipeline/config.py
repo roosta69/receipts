@@ -88,6 +88,7 @@ MIN_YEARS_OPERATING = 2             # Proxy for established
 # Stay in the chain reference list for competitor matching purposes.
 
 CHAIN_BLOCKLIST = [
+    # National injectable / med spa chains
     "ideal image",
     "laseraway",
     "allē",
@@ -103,17 +104,23 @@ CHAIN_BLOCKLIST = [
     "milan laser",
     "lasercare",
     "hydromassage",
-    "ulta beauty",
-    "sephora",
+    "sono bello",
+    "spavia",
+    "amaira med spa",
     "the now",
     "soothe",
+    # Discovered via 2026-05-15 Apify test scrape (Phoenix/Scottsdale) — multi-location
+    "nakedmd",
+    "look lab med spa",
+    "dolce medical spa",
+    "mdskin lounge",
+    "mdskin bar",
+    # Cross-vertical chains that sometimes appear in med-spa search
+    "ulta beauty",
+    "sephora",
     "drybar",
     "blo blow dry",
-    "blo",
-    "fitness sf",
-    "fly barre",
-    "ssense",
-    "amazingly clear",
+    "blo ",
     "kiehl's",
     "dermalogica",
     # Dermatology-MD chains (often offer Botox but ICP filter says no)
