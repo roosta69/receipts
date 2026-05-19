@@ -2,7 +2,8 @@
 05_export_csv.py — Export final master-list.csv + competitors.csv.
 
 Schema (master-list.csv):
-    name,city,state,zip,phone,website,instagram,email,email_source,
+    name,city,state,zip,owner_name,owner_credential,
+    phone,website,instagram,email,email_source,
     google_review_count,google_star_rating,address,gbp_url,categories,
     top_competitor_1_name,top_competitor_1_reviews,top_competitor_1_stars,top_competitor_1_distance,
     top_competitor_2_name,top_competitor_2_reviews,top_competitor_2_stars,top_competitor_2_distance,
@@ -81,6 +82,7 @@ def parse_city_state_zip(place: Dict) -> tuple:
 def write_master_csv(primaries):
     fieldnames = [
         "name", "city", "state", "zip",
+        "owner_name", "owner_credential",
         "phone", "website", "instagram", "email", "email_source",
         "google_review_count", "google_star_rating",
         "address", "gbp_url", "categories",
@@ -102,6 +104,8 @@ def write_master_csv(primaries):
                 "city": city,
                 "state": state,
                 "zip": zip_code,
+                "owner_name": safe_str(place.get("_owner_name")),
+                "owner_credential": safe_str(place.get("_owner_credential")),
                 "phone": safe_str(place.get("phone") or place.get("phoneNumber")),
                 "website": safe_str(place.get("website")),
                 "instagram": safe_str(extract_instagram(place)),

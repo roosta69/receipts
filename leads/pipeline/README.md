@@ -48,7 +48,7 @@ python 02_filter_icp.py
 python 03_assign_competitors.py
 
 # Step 4 — Enrich emails (10-30 min depending on dataset size)
-python 04_enrich_emails.py
+python 04_enrich_websites.py
 
 # Step 5 — Export final CSVs (instant)
 python 05_export_csv.py
@@ -84,15 +84,29 @@ For each primary target, computes haversine distance to every other place in `co
 
 Output: `data/03_with_competitors.json`
 
-### `04_enrich_emails.py`
-**Stage A** (free): Scrapes each spa's website + common contact-page paths (`/contact`, `/contact-us`, `/about`) for `mailto:` links and emails matching the spa's domain. ~60-70% hit rate.
+### `04_enrich_websites.py` (combined email + owner-name enrichment, ~15-25 min for 1500 leads)
 
-**Stage B** (optional, requires `HUNTER_API_KEY`): For spas where Stage A failed, queries Hunter.io for the spa's domain and picks the highest-priority email (owner > founder > info@ > generic).
+Fetches each spa's website + ~10 common About / Team / Founders pages in a single round-trip per spa, then extracts BOTH from the same HTML:
 
-Output: `data/04_with_emails.json`
+- **Email** — `mailto:` links first, then regex match on raw HTML. Skips generic noreply/wix/squarespace addresses. Optional Hunter.io fallback if `HUNTER_API_KEY` is set (~60-70% hit rate on its own, +15-20% with Hunter).
+- **Owner name + credential** — three pattern matchers ranked by confidence:
+  - **High:** explicit "Owner Sarah Whelan" / "Founded by Sarah Whelan" / "Lead Injector: Sarah Whelan"
+  - **Medium:** name + credential pattern ("Sarah Whelan, RN" / "Dr. Marcus Liang, DO")
+  - **Medium-low:** "Dr. Lastname" appearing 2+ times on the page
+  - Filters out false positives ("Beverly Hills", "Sandy Springs", "Privacy Policy", etc.)
+  - Tally-vote across pages; highest-confidence pick wins
+  - ~45% hit rate observed on real-world med spa data
+
+Why combined: each spa needs ~5-15 sec of network time per fetch. Doing two separate passes doubled the total runtime and doubled load on the spa's server. Single pass is meaningfully faster.
+
+Output adds these fields to each row's dict:
+- `_email`, `_email_source` (`contact_page` / `hunter`)
+- `_owner_name`, `_owner_credential`, `_owner_confidence` (`high` / `med`)
+
+Pipeline file: writes to `data/04_with_emails.json` (kept the filename for backward compat).
 
 ### `05_export_csv.py`
-Writes the two final CSVs. Schema documented at top of the script.
+Writes the two final CSVs. Schema documented at top of the script. **As of 2026-05-18 the master schema includes `owner_name` and `owner_credential` columns** populated by `04_enrich_websites.py`.
 
 Output:
 - `~/Desktop/review-agency/leads/master-list.csv`
@@ -159,12 +173,19 @@ To add new cities later:
 
 ## What this does NOT do
 
-- **Verify "single-owner" status** — Apify can't see ownership structure. Run a VA pass on the top 100 hottest leads (Phase 2 work).
+- **Verify "single-owner" status** — Apify can't see ownership structure. Cold-call discovery (or a Phase 2 VA pass) catches this.
 - **Verify "operating 2+ years"** — proxy via review count works ~85% of the time.
-- **Pull owner credentials** (RN/NP/MD) — these come from About-page scraping. Punt to a separate enrichment pass once you've validated the master list.
 - **Distinguish single-location independent vs. small chain (2-3 locations)** — partial chain detection via name matching; not perfect.
 
-These are all "Phase 2" enrichment tasks — do them on the 100-200 hottest leads, not on the entire list.
+## Retroactive enrichment scripts (standalone, not part of pipeline)
+
+For master-list.csv or Excel files that already exist (e.g., the Google Sheets / Excel CRM file), these scripts fill in missing data without re-running the full pipeline:
+
+- **`scrape_owner_names.py`** — operates directly on the Excel CRM file at `~/Desktop/google review_ ai call center .xlsx`. Reads MASTER tab, fills in `owner_name` + `owner_credential` for rows where they're blank. Same pattern matching as `04_enrich_websites.py`. ~21 min for 1,300 rows; ~45% hit rate.
+
+- **`enrich_master_emails.py`** — operates directly on `master-list.csv` (the pipeline output). Fills in email column for rows where it's blank. Useful when you've added new rows manually and want to back-fill emails without re-running the full pipeline.
+
+Both run as: `python3 scrape_owner_names.py` (or `python3 enrich_master_emails.py`).
 
 ## Troubleshooting
 
@@ -174,6 +195,6 @@ These are all "Phase 2" enrichment tasks — do them on the 100-200 hottest lead
 
 **Apify run shows 0 results** → Check the actor at https://apify.com/compass/crawler-google-places — they may have renamed it. Update `APIFY_ACTOR_ID` in config.py.
 
-**Step 04 is very slow** → Each spa website fetch takes ~3 seconds × 2,000 spas = ~2 hours. Run overnight or in chunks. To skip emails entirely, comment out Stage A and just run Stage B with Hunter.
+**Step 04 is slow** → Each spa needs ~5-15 sec of website fetching. 10 workers gets you through 1,500 spas in ~15-25 min. To speed up further: bump `MAX_WORKERS` to 20 (more aggressive, may trip anti-bot defenses on some sites).
 
 **Want to scrape Google Maps without Apify?** Alternatives: Outscraper ($0.0008/record), SerpAPI, or Google Places API directly ($17 per 1K searches + $32 per 1K details).

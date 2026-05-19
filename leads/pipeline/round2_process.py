@@ -200,7 +200,9 @@ def safe_float(v):
 
 
 MASTER_HEADERS = [
-    "name", "city", "state", "zip", "phone", "website", "instagram",
+    "name", "city", "state", "zip",
+    "owner_name", "owner_credential",
+    "phone", "website", "instagram",
     "email", "email_source", "google_review_count", "google_star_rating",
     "address", "gbp_url", "categories",
     "top_competitor_1_name", "top_competitor_1_reviews", "top_competitor_1_stars", "top_competitor_1_distance",
@@ -218,11 +220,13 @@ def primary_to_row(place):
         "city": city,
         "state": state,
         "zip": zip_code,
+        "owner_name": safe_str(place.get("_owner_name")),
+        "owner_credential": safe_str(place.get("_owner_credential")),
         "phone": safe_str(place.get("phone") or place.get("phoneNumber")),
         "website": safe_str(place.get("website")),
         "instagram": safe_str(extract_instagram(place)),
-        "email": "",
-        "email_source": "",
+        "email": safe_str(place.get("_email")),
+        "email_source": safe_str(place.get("_email_source")),
         "google_review_count": safe_int(place.get("reviewsCount")),
         "google_star_rating": safe_float(place.get("totalScore")),
         "address": safe_str(place.get("address")),
