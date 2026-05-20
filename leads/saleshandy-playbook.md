@@ -31,24 +31,33 @@ Compared to Apollo ($49/mo for 1,000 contacts = $0.049 each), Saleshandy is **~2
 
 ## Two tracks — run them in parallel
 
-### Track A — Enrich our existing 1,432-spa master list (highest ROI)
+### Track A — Owner-level contacts at our existing 1,432 spas (highest ROI)
 
-**What:** Upload our `master-list.csv` to Saleshandy's CSV Enrichment feature. They match each row against their database and return verified owner email + phone + title.
+**Correction noted 2026-05-20:** Saleshandy's CSV Enrichment has TWO modes — Company mode (adds firmographics, doesn't return owner contacts) and People mode (needs first/last name + company, returns verified email/phone). Owner *discovery* at companies-we-already-have requires either People Enrichment (if we know the owner's name) or a 2-step Lead Finder flow.
 
-**Why this first:** Our existing list has real practices we've already validated (60+ reviews, 4+ stars, ICP-fit). What's missing is the *who* — the owner's direct contact. This is the cheapest path to "Sarah at Med Spa X, here's her cell."
+**Three CSVs prepared on Desktop:**
 
-**Steps:**
+1. `applaud-master-list.csv` — full 42-column master, all 1,432 rows. Reference / backup. **Not for Saleshandy upload.**
 
-1. Export `master-list.csv` (or `all-leads.csv`) from `~/Desktop/review-agency/leads/`
-2. Saleshandy → CSV Enrichment → Upload
-3. Map your columns (Saleshandy needs: company name + domain, ideally also city/state)
-4. Saleshandy returns enriched rows with owner contact info (only charges credits for the rows it could verify)
-5. Download enriched CSV
-6. Run our merge script to fold the new columns (`owner_email_verified`, `owner_phone_verified`, `owner_title`) back into MASTER
+2. `applaud-known-owners-for-saleshandy.csv` — the 694 rows where we have owner first/last name. **Upload to People Enrichment.** Saleshandy matches the named person → returns verified email/phone. Expected ~50-70% hit rate (MD/PA-owned higher; solo NP lower).
 
-**Expected hit rate:** 30-50% of practices will have an identifiable owner-level contact in Saleshandy's DB. Solo NP-owned med spas often slip through (the practice is the LLC and the owner doesn't have a LinkedIn). MD-owned and multi-provider practices match much better.
+3. `applaud-companies-for-saleshandy.csv` — all 1,432 rows, companies-only schema. **Upload as an Account List / Company List (NOT as enrichment).** No credits charged. Use this list as the company filter in Lead Finder step 2.
 
-**Credit budget:** 1,432 rows × ~0.4 hit rate = ~570 credits spent. **Lead Pro $79 plan covers this with ~3,400 credits left over for Track B.**
+**Recommended flow:**
+
+```
+Step 1: Upload applaud-known-owners-for-saleshandy.csv → People Enrichment
+        ~$8-10 spent, ~400-500 verified owner contacts returned
+
+Step 2: Upload applaud-companies-for-saleshandy.csv → save as Account List
+        $0 charged — this is just storage
+
+Step 3: Lead Finder → filter: "Companies = Applaud Master Account List" +
+        "Title = Owner OR Founder OR Medical Director ..." + Decision Maker = Yes
+        ~$12-18 spent, ~600-900 owner contacts unlocked
+
+Total expected: 1,000-1,400 verified owner contacts across the 1,432 practices for ~$20-30.
+```
 
 ### Track B — Net-new lead discovery in adjacent verticals
 
